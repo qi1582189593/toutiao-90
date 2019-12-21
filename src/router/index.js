@@ -7,7 +7,7 @@ Vue.use(VueRouter)
 
 const routes = [
   { path: '/',
-    redirect: '/login' }, // 强行调整
+    redirect: '/home' }, // 强行调整
   {
     path: '/home',
     // name: 'home',
