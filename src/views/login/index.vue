@@ -93,10 +93,10 @@ export default {
               window.localStorage.setItem('user-token', result.data.token)
               this.$router.push('/home') // 跳转到home页
             }).catch(() => {
-              this.$message({
-                type: 'warning',
-                message: '手机号或者验证码错误!'
-              })
+              // this.$message({
+              //   type: 'warning',
+              //   message: '手机号或者验证码错误!'
+              // })
             })
           }
         }
