@@ -19,7 +19,11 @@ const routes = [
     }, {
       path: 'comment', // 完整 相对
       component: () => import('../views/comment')
-    }]
+    }, {
+      path: 'material', // 完整 相对
+      component: () => import('../views/material')
+    }
+    ]
   },
   {
     path: '/login',
