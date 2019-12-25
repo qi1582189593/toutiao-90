@@ -1,11 +1,17 @@
 <template>
-  <el-card>
+  <el-card v-loading="loading">
       <!-- 头部内容 -->
       <bread-crumb slot="header">
         <template slot="title">
            图片管理
         </template>
       </bread-crumb>
+      <!-- 上传 -->
+    <el-row type='flex' justify="end">
+      <el-upload action="" :http-request="uploadImg" :show-file-list="false">
+        <el-button size="small" type="primary">上传图片</el-button>
+      </el-upload>
+    </el-row>
        <el-tabs v-model="activeName" @tab-click="changeTab">
           <!-- 标签 -->
           <el-tab-pane label="全部图片" name="all">
@@ -15,8 +21,9 @@
           <el-card class="img-card" v-for="item in list" :key="item.id">
             <img :src="item.url" alt />
             <el-row class="operate" type="flex" align="middle" justify="space-around">
-              <i class="el-icon-star-on"></i>
-              <i class="el-icon-delete-solid"></i>
+                <!-- 需要根据当前是否收藏的状态来决定 是否给字体颜色 -->
+              <i @click="collectOrCancel(item)" :style="{ color: item.is_collected ? 'red' : '#000' }" class="el-icon-star-on"></i>
+              <i @click="delMaterial(item.id)" class="el-icon-delete-solid"></i>
             </el-row>
           </el-card>
         </div>
@@ -27,6 +34,9 @@
           <el-card class="img-card" v-for="item in list" :key="item.id">
             <img :src="item.url" alt />
             <el-row class="operate" type="flex" align="middle" justify="space-around">
+                <!-- 需要根据当前是否收藏的状态来决定 是否给字体颜色 -->
+              <i @click="collectOrCancel(item)" :style="{ color: item.is_collected ? 'red' : '#000' }" class="el-icon-star-on"></i>
+              <i @click="delMaterial(item.id)" class="el-icon-delete-solid"></i>
             </el-row>
           </el-card>
         </div>
@@ -60,9 +70,47 @@ export default {
     }
   },
   methods: {
+    // 删除用户图片素材
+    delMaterial (id) {
+      this.$confirm('你确定要删除此图片吗?').then(() => {
+        this.$axios({
+          method: 'delete',
+          url: `/user/images/${id}`
+        }).then(() => {
+          this.getMaterial() // 重新拉取数据
+        })
+      })
+    },
+    // 取消或者收藏
+    collectOrCancel (item) {
+      // item.iscollected true => 取消收藏 ? 收藏
+      this.$axios({
+        method: 'put',
+        url: `/user/images/${item.id}`,
+        data: {
+          collect: !item.is_collected // 取反 因为 收藏  =>取消收藏
+        }
+      }).then(result => {
+        this.getMaterial() // 重新拉取数据
+      })
+    },
     changeTab () {
       this.page.currentPage = 1 // 重置回第一页
       this.getMaterial() // 调用获取数据方法
+    },
+    // 上传图片方法
+    uploadImg (params) {
+      this.loading = true // 先弹个层
+      let data = new FormData()
+      data.append('image', params.file) // 文件加入到参数中
+      this.$axios({
+        method: 'post',
+        url: '/user/images',
+        data
+      }).then(result => {
+        this.loading = false // 关闭弹层
+        this.getMaterial() // 直接调用拉取数据的方法
+      })
     },
     // 改变页码方法
     changePage (newPage) {
